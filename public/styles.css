@@ -61,7 +61,7 @@ h2, h3 { margin: 0; font-weight: 600; }
 .detail { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
 .center { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
 @media (max-width: 1280px) { .app { grid-template-columns: 300px minmax(0, 1fr) 340px; } .tabs-note { display: none; } }
-@media (max-width: 1000px) { .app { grid-template-columns: 0 minmax(0, 1fr) 320px; } .rail { display: none; } .stats { display: none; } }
+@media (max-width: 1000px) { .app { grid-template-columns: minmax(0, 1fr) 320px; } .rail { display: none; } .stats { display: none; } }
 
 .tabs { flex: none; height: 40px; display: flex; align-items: flex-end; gap: 2px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .tab { flex: none; background: transparent; border: 0; border-bottom: 2px solid transparent; padding: 9px 14px; color: var(--muted); font-weight: 550; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -84,12 +84,12 @@ body[data-view="map"] #flow, body[data-view="flow"] #map { display: none; }
 .edge.error, .edge.failed { stroke: #8a3a36; }
 .edge.completed, .edge.ok { stroke: #2e5a3a; }
 .edge.unresolved, .edge.unknown { stroke: #6b5a2a; stroke-dasharray: 4 4; }
-.toolbar { position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+.toolbar { position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; pointer-events: none; }
 .toolbar > * { pointer-events: auto; }
 .seg { display: flex; background: var(--panel2); border: 1px solid var(--line2); border-radius: 8px; overflow: hidden; }
 .seg button { background: none; border: 0; padding: 5px 12px; color: var(--muted); }
 .seg button.on { background: #232a35; color: var(--text); }
-.zoom { margin-left: auto; display: flex; background: var(--panel2); border: 1px solid var(--line2); border-radius: 8px; overflow: hidden; }
+.zoom { margin-left: auto; flex: none; display: flex; background: var(--panel2); border: 1px solid var(--line2); border-radius: 8px; overflow: hidden; }
 .zoom button { background: none; border: 0; padding: 5px 11px; color: var(--muted); }
 .zoom button:hover { color: var(--text); background: #1f2530; }
 .legend { display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--muted); background: rgba(16,19,24,.88); border: 1px solid var(--line); border-radius: 8px; padding: 5px 12px; pointer-events: none; }

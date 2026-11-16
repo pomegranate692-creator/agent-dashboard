@@ -23,11 +23,13 @@ No dependencies, no build step (Node ≥ 18; verified on Node 24). Tests: `npm t
 | `<task-notification>` records in the parent transcript | completion of *background* subagents |
 | `agent_listing_delta` records + agent definition folders | configured agent types (see below) |
 
-Your agents: you have **no custom agent definition files** (checked `~/.claude/agents`, every project's
-`.claude/agents`, and enabled plugins). Sessions are offered Claude Code's six built-in types
-(`claude`, `claude-code-guide`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`). The dashboard lists
-those as *configured types*, and separately shows *running instances* (sessions and the subagents they spawned)
-and *historical activity*. If you add agent files, they appear automatically.
+Your agents: the dashboard reads your custom agent definitions from `~/.claude/agents` (currently nine:
+`architect`, `build-error-resolver`, `code-reviewer`, `doc-updater`, `e2e-runner`, `planner`, `refactor-cleaner`,
+`security-reviewer`, `tdd-guide`), plus every project's `.claude/agents` and enabled plugins. It also lists Claude
+Code's built-in types (`claude`, `claude-code-guide`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`).
+These are shown as *configured types*, and separately as *running instances* (sessions and the subagents they
+spawned) and *historical activity*. Agent files you add or change appear automatically; the files are only read,
+never written.
 
 ## Reading the UI
 
