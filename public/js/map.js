@@ -11,9 +11,21 @@ let overlay = null;
 const CAP = 5;
 const SW = 268, SH = 112, UW = 214, UH = 46, PW = 210, PH = 34, HUB = 150;
 
+// Space covered by the toolbar (top) and the agent-type strip plus zoom hint (bottom), so Fit never puts nodes under them.
+function mapInsets() {
+  const r = root.getBoundingClientRect();
+  const tb = root.querySelector('.toolbar');
+  const st = root.querySelector('.types-strip');
+  return {
+    top: tb ? Math.max(0, tb.getBoundingClientRect().bottom - r.top) + 6 : 0,
+    // The strip fills in after the first layout, so never reserve less than its usual single-row height.
+    bottom: Math.max(66, st ? r.bottom - st.getBoundingClientRect().top + 6 : 0),
+  };
+}
+
 export function initMap(el) {
   root = el;
-  cv = new Canvas(el, { key: 'map' });
+  cv = new Canvas(el, { key: 'map', insets: mapInsets });
   const tb = h('div', { class: 'toolbar' },
     h('div', { class: 'seg', id: 'win-seg' },
       ...[['live', 'Open now'], ['24h', '24h'], ['7d', '7 days'], ['all', 'All']].map(([k, label]) => h('button', { dataset: { win: k }, onclick: () => { S.ui.window = k; try { localStorage.setItem('ad.window', JSON.stringify(k)); } catch { /* ignore */ } cv.userMoved = false; notify('canvas', 'rail', 'header'); } }, label))),

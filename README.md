@@ -1,7 +1,6 @@
 # Agent Dashboard
 
-A **read-only**, real-time view of the Claude Code sessions and subagents already running on this Mac.
-It observes; it never starts, steers, stops or reconfigures anything, and never writes to `~/.claude`.
+A read-only, real-time dashboard for my Claude Code agents, sessions and subagents. It watches; it never starts, steers, stops or reconfigures anything, and never writes to `~/.claude`.
 
 ![The overview map at 1440px with live data: the hub, a project group, three sessions, subagents and the configured agent types](docs/map.png)
 
@@ -9,66 +8,46 @@ It observes; it never starts, steers, stops or reconfigures anything, and never 
 
 ## Start
 
+Requires Node 18 or newer (developed on Node 24). No dependencies and no build step.
+
 ```bash
-cd ~/agent-dashboard
-node server/index.js            # or: npm start
-# → http://localhost:4317        (use --port N to change; binds to 127.0.0.1 only)
+git clone https://github.com/pomegranate692-creator/agent-dashboard.git
+cd agent-dashboard
+npm start          # same as: node server/index.js
 ```
 
-No dependencies, no build step (Node ≥ 18; verified on Node 24). Tests: `npm test`.
+Then open <http://localhost:4317>. Options: `--port <n>` to change the port, `--root <dir>` to read a different Claude folder (default `~/.claude`). It listens on `127.0.0.1` only. Tests: `npm test`.
 
-## What it observes (verified on Claude Code 2.1.x)
+## What it can observe
 
 | Source | Used for |
 |---|---|
-| `~/.claude/sessions/<pid>.json` (live-session registry; same data `claude agents --json` prints) | which sessions have a running process, and whether it is **busy** (working) or **idle** |
-| `~/.claude/projects/*/<sessionId>.jsonl` | prompts, replies, tool calls + results, errors, API errors |
-| `~/.claude/projects/*/<sessionId>/subagents/agent-<id>.{jsonl,meta.json}` | subagent runs; `meta.toolUseId` links each run to the parent's `Agent` tool call |
-| `<task-notification>` records in the parent transcript | completion of *background* subagents |
-| `agent_listing_delta` records + agent definition folders | configured agent types (see below) |
+| `~/.claude/sessions/<pid>.json` (the live-session registry) | which sessions have a running process, and whether each is busy or idle |
+| `~/.claude/projects/*/<sessionId>.jsonl` | prompts, replies, tool calls and results, errors |
+| `~/.claude/projects/*/<sessionId>/subagents/` | subagent runs, linked to the parent call that started them |
+| `<task-notification>` records in the parent transcript | completion of background subagents |
+| `~/.claude/agents`, project and plugin agent folders | configured agent definitions, shown separately from running instances |
 
-Your agents: the dashboard reads your custom agent definitions from `~/.claude/agents` (currently nine:
-`architect`, `build-error-resolver`, `code-reviewer`, `doc-updater`, `e2e-runner`, `planner`, `refactor-cleaner`,
-`security-reviewer`, `tdd-guide`), plus every project's `.claude/agents` and enabled plugins. It also lists Claude
-Code's built-in types (`claude`, `claude-code-guide`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`).
-These are shown as *configured types*, and separately as *running instances* (sessions and the subagents they
-spawned) and *historical activity*. Agent files you add or change appear automatically; the files are only read,
-never written.
+The UI has a **map** (hub → projects → sessions → subagents), a **flow** view for one session with replay, a side **inspector** for full prompts, output and errors, and a **recent activity** feed. Configured agents, running instances and past activity are kept visibly apart.
 
-## Reading the UI
+Nothing is guessed. A tool call with no result reads as Running only while its session is registered as working. A background subagent reads as Running only while its own transcript was written in the last 45 seconds, and its end time is the completion report, never the launch. If the browser loses the server, everything is marked unknown rather than assumed finished.
 
-- **Rail (left)**: sessions grouped Working now / Open, idle / Recent history, then configured agent types.
-- **Map**: hub → project folders → sessions → subagents. Double-click a session to open its **Flow**.
-  When zoomed out it shows only names and states at a readable size; zoom in (or select a node) for detail, and
-  **Fit** returns to the whole picture.
-- **Flow**: prompt → Claude reply → tool calls, with subagents branching off to their own tool calls.
-  Replay scrubs through a session's history (amber banner = not live).
-- **Inspector (right)**: full prompt/output/error text, fetched on demand from the transcript.
-- **Recent activity (bottom)**: observable actions across sessions, newest first.
-- Header: connection state, live counts, *Needs attention*, and *How this is observed*.
+## What it can't observe
 
-States are never guessed: a tool call without a result is **Running** only while its session is registered as
-working, otherwise **No result recorded**. A background subagent is **Running** only while its own transcript was
-written to in the last 45 seconds; otherwise it reads "Background · no recent activity, not reported done" until the
-parent session records its completion. Its end time is the completion report, never the launch. If the browser loses the server, everything is marked
-**Unknown / Visibility lost** instead of being assumed finished.
+- Pending permission prompts: they are not written to any file. Only questions Claude asked you (`AskUserQuestion`, `ExitPlanMode`) show as waiting for you.
+- Sessions that don't write to `~/.claude`, such as cloud sessions and other machines.
+- Agents passed with `--agents` on the command line, unless a session listed them.
+- Private reasoning, which is never read or shown. API keys and tokens are masked in previews.
+- Costs: dollar costs aren't in transcripts and aren't estimated. Token counts for subagents are only what Claude Code itself reported.
+- Anything instantly: transcripts are written slightly after events, so expect a 1–2 second lag.
 
-## Limitations
-
-- Transcripts are written slightly after events happen; expect ~1–2 s lag.
-- A pending *permission prompt* is not visible in any file; only questions Claude asked you
-  (`AskUserQuestion`, `ExitPlanMode`) are flagged as "waiting for you".
-- Sessions that don't write to `~/.claude` (cloud sessions, other machines) are invisible.
-- Private reasoning blocks are never read or shown. API keys/tokens are masked in previews.
-- No token costs are shown: dollar costs aren't recorded in transcripts and aren't estimated. Token counts shown
-  for subagents are the totals Claude Code itself reported.
-- `--agents` CLI-defined agents are session-only and not saved to disk, so they only appear if a session listed them.
-
-## Testing without touching real data
-
-`scripts/fixture.js` + `scripts/simulate-live.js` write synthetic transcripts to a temp folder:
+## Try it without real data
 
 ```bash
 node scripts/simulate-live.js /tmp/ad-fixture &
 node server/index.js --root /tmp/ad-fixture --port 4318   # shows a FIXTURE DATA banner
 ```
+
+## License
+
+[MIT](LICENSE) © 2026 Romaan Malik

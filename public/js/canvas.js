@@ -4,8 +4,9 @@ import { h, clamp, lsGet, lsSet } from './util.js';
 const LOW_ZOOM = 0.65;
 
 export class Canvas {
-  constructor(root, { key, minZoom = 0.12, maxZoom = 1.8, onChange } = {}) {
+  constructor(root, { key, minZoom = 0.12, maxZoom = 1.8, onChange, insets } = {}) {
     this.root = root;
+    this.insets = insets || null; // () => ({ top, bottom }) space overlaid by controls; Fit keeps content clear of it
     this.key = 'ad.vp.' + key;
     this.minZoom = minZoom; this.maxZoom = maxZoom;
     this.onChange = onChange;
@@ -93,11 +94,13 @@ export class Canvas {
     if (!this.bounds) return;
     const r = this.root.getBoundingClientRect();
     if (!r.width) return;
-    const pad = 48;
-    const k = clamp(Math.min((r.width - pad * 2) / this.bounds.w, (r.height - pad * 2) / this.bounds.h), this.minZoom, 1);
+    const ins = this.insets ? this.insets() : { top: 0, bottom: 0 };
+    const padX = this.insets ? 32 : 48, pad = this.insets ? 12 : 48;
+    const aw = r.width - padX * 2, ah = r.height - pad * 2 - ins.top - ins.bottom;
+    const k = clamp(Math.min(aw / this.bounds.w, ah / this.bounds.h), this.minZoom, 1);
     this.v.k = k;
-    this.v.x = (r.width - this.bounds.w * k) / 2 - this.bounds.x * k;
-    this.v.y = (r.height - this.bounds.h * k) / 2 - this.bounds.y * k;
+    this.v.x = padX + (aw - this.bounds.w * k) / 2 - this.bounds.x * k;
+    this.v.y = pad + ins.top + (ah - this.bounds.h * k) / 2 - this.bounds.y * k;
     this.apply();
     if (markMoved) { this.userMoved = true; this.save(); }
   }
