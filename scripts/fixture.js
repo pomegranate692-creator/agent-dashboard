@@ -42,6 +42,7 @@ function buildFinished(root, t0 = Date.now() - 3 * 3600e3) {
   out += assistant(sid, [{ type: 'text', text: 'I will read the parser first.' }, toolUse('toolu_read1', 'Read', { file_path: '/fixture/parser.js' })], t += 2000, 'msg_a');
   out += toolResult(sid, 'toolu_read1', 'file contents here', t += 500);
   out += assistant(sid, [toolUse('toolu_bash1', 'Bash', { command: 'npm test' }), toolUse('toolu_bash2', 'Bash', { command: 'rm -rf /' })], t += 1500, 'msg_b');
+  // NOTE: the "sk-ant-..." value below is a dummy string used only to test that secrets are redacted. It is not a real credential.
   out += toolResult(sid, 'toolu_bash1', 'Error: 2 tests failed\nAPI key sk-ant-abcdefghijklmnopqrstuvwxyz0123456789', t += 4000, { isError: true });
   out += toolResult(sid, 'toolu_bash2', 'Permission for this action was denied by the Claude Code auto mode classifier.', t += 100, { isError: true });
   out += assistant(sid, [{ type: 'text', text: 'Tests fail; delegating a review.' }, toolUse('toolu_agent1', 'Agent', { description: 'Review failing tests', subagent_type: 'Explore', prompt: 'Find why the tests fail' })], t += 2000, 'msg_c');

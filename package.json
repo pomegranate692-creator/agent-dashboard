@@ -2,6 +2,7 @@
   "name": "agent-dashboard",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Read-only live dashboard for existing Claude Code sessions and subagents",
   "scripts": { "start": "node server/index.js", "test": "node --test test/*.test.js" },
   "engines": { "node": ">=18" }

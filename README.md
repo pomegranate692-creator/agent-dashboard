@@ -3,6 +3,10 @@
 A **read-only**, real-time view of the Claude Code sessions and subagents already running on this Mac.
 It observes; it never starts, steers, stops or reconfigures anything, and never writes to `~/.claude`.
 
+![The overview map at 1440px with live data: the hub, a project group, three sessions, subagents and the configured agent types](docs/map.png)
+
+*The overview map, zoomed out, with real sessions from one Mac (names and states only; zoom in for detail).*
+
 ## Start
 
 ```bash
