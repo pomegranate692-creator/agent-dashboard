@@ -1,0 +1,12 @@
+node_modules/
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.*
+*.pem
+*.key
+# local data, fixtures and tooling config
+data/
+tmp/
+.claude/

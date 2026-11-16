@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Dashboard</title>
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body data-view="map">
+  <header id="header" class="header"></header>
+  <div id="lostbar" class="lostbar hidden"></div>
+  <main class="app">
+    <aside id="rail" class="rail"></aside>
+    <section class="center">
+      <div class="tabs">
+        <button id="tab-map" class="tab on">Map</button>
+        <button id="tab-flow" class="tab">Flow <span id="flow-label" class="flow-label"></span></button>
+        <span class="tabs-note">Map: how sessions and subagents relate · Flow: one session’s prompts, replies, tools and subagents</span>
+      </div>
+      <div class="stage">
+        <div id="map" class="canvas"></div>
+        <div id="flow" class="flowwrap"></div>
+      </div>
+      <button id="feed-open" class="feed-open hidden" onclick="">Show recent activity</button>
+      <section id="feed" class="feed"></section>
+    </section>
+    <aside id="detail" class="detail"></aside>
+  </main>
+  <div id="fatal" class="fatal"></div>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
