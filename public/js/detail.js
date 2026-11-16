@@ -1,6 +1,6 @@
 // Right-hand inspector. Overview stays short; long output lives here, fetched on demand from the transcript.
 import { h, setText, fmtDateTime, fmtTime, fmtDur, fmtNum, fmtBytes, ago, shortModel } from './util.js';
-import { S, effectiveSessionState, nodeState, STATE_LABEL, select, notify, attentionItems, markSeen, sessionNodes } from './store.js';
+import { S, effectiveSessionState, nodeState, subState, STATE_LABEL, select, notify, attentionItems, markSeen, sessionNodes } from './store.js';
 import { buildModel, groupMembers } from './flow.js';
 
 let root, body, lastSig = '';
@@ -102,7 +102,7 @@ function renderSession(s) {
   }
   if (s.subagents.length) {
     kids.push(sec(`Subagents (${s.subagentTotal})`, h('div', { class: 'alist' }, ...s.subagents.slice(0, 30).map((u) => {
-      const st = nodeState({ kind: 'subagent', status: u.status }, s);
+      const st = subState(u, s);
       return h('div', { class: 'arow', onclick: () => select({ type: 'node', sessionId: s.id, id: u.id }, 'flow') }, h('span', { class: `dot ${st}` }), h('span', { class: 'atx' }, `${u.agentType || 'agent'} — ${u.description || ''}`), h('span', { class: 'at' }, STATE_LABEL[st]));
     }))));
   }
@@ -192,6 +192,6 @@ function renderType(name) {
   const inst = [];
   for (const s of S.sessions.values()) for (const u of s.subagents) if ((u.agentType || '(unspecified)') === c.name) inst.push({ s, u });
   inst.sort((a, b) => (b.u.ts || 0) - (a.u.ts || 0));
-  kids.push(sec(`Runs seen in transcripts (${c.runs})`, inst.length ? h('div', { class: 'alist' }, ...inst.slice(0, 25).map(({ s, u }) => { const st = nodeState({ kind: 'subagent', status: u.status }, s); return h('div', { class: 'arow', onclick: () => select({ type: 'node', sessionId: s.id, id: u.id }, 'flow') }, h('span', { class: `dot ${st}` }), h('span', { class: 'atx' }, `${u.description || ''} — ${s.title}`), h('span', { class: 'at' }, ago(u.ts, S.now))); })) : note('No runs of this type found in the transcripts on this machine.')));
+  kids.push(sec(`Runs seen in transcripts (${c.runs})`, inst.length ? h('div', { class: 'alist' }, ...inst.slice(0, 25).map(({ s, u }) => { const st = subState(u, s); return h('div', { class: 'arow', onclick: () => select({ type: 'node', sessionId: s.id, id: u.id }, 'flow') }, h('span', { class: `dot ${st}` }), h('span', { class: 'atx' }, `${u.description || ''} — ${s.title}`), h('span', { class: 'at' }, ago(u.ts, S.now))); })) : note('No runs of this type found in the transcripts on this machine.')));
   return kids;
 }

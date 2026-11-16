@@ -113,3 +113,21 @@ test('background agent: async launch stays open until a task-notification report
   assert.equal(ing.sessions.get(sid).open.has(sub.id), false);
   fs.rmSync(root, { recursive: true });
 });
+
+test('background agent: no end time is recorded at launch, and its own transcript activity is tracked', async () => {
+  const root = tmpRoot();
+  const { sid, file, dir } = F.buildFinished(root);
+  const t = Date.now();
+  fs.appendFileSync(file, F.assistant(sid, [F.toolUse('toolu_bg', 'Agent', { description: 'bg job', subagent_type: 'planner', prompt: 'x', run_in_background: true })], t, 'msg_bg'));
+  fs.appendFileSync(file, F.toolResult(sid, 'toolu_bg', 'Async agent launched', t + 10, { tur: { isAsync: true, status: 'async_launched', agentId: 'abg1' } }));
+  fs.writeFileSync(path.join(dir, sid, 'subagents', 'agent-abg1.meta.json'), JSON.stringify({ agentType: 'planner', description: 'bg job', toolUseId: 'toolu_bg', spawnDepth: 1 }));
+  const s = F.line(F.rec(sid, { type: 'user', isSidechain: true, agentId: 'abg1', uuid: F.uid('bu'), timestamp: F.iso(t + 500), message: { role: 'user', content: 'x' } }))
+    + F.line(F.rec(sid, { type: 'assistant', isSidechain: true, agentId: 'abg1', uuid: F.uid('ba'), timestamp: F.iso(t + 4000), message: { id: 'msg_bgs', role: 'assistant', model: 'claude-fixture-1', content: [F.toolUse('toolu_bg_read', 'Read', { file_path: '/x' })] } }));
+  fs.writeFileSync(path.join(dir, sid, 'subagents', 'agent-abg1.jsonl'), s);
+  const ing = await load(root);
+  const sub = ing.sessions.get(sid).nodes.get('sub:toolu_bg');
+  assert.equal(sub.status, 'async');
+  assert.equal(sub.endTs, null, 'launch acknowledgement is not an end time');
+  assert.equal(sub.lastActivityTs, t + 4000);
+  fs.rmSync(root, { recursive: true });
+});

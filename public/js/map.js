@@ -1,7 +1,7 @@
 // Overview map: hub → projects → sessions → subagents. Every edge is backed by data
 // (session.cwd grouping, parent→child subagent link via the Agent tool_use id).
 import { h, reconcile, setText, setClass, ago, fmtNum } from './util.js';
-import { S, effectiveSessionState, STATE_LABEL, inWindow, select, nodeState, attentionItems, unseen, notify } from './store.js';
+import { S, effectiveSessionState, STATE_LABEL, inWindow, select, nodeState, subState, attentionItems, unseen, notify } from './store.js';
 import { Canvas } from './canvas.js';
 
 let cv = null;
@@ -82,7 +82,7 @@ export function layoutMap(sessions) {
         const off = (i - (subs.length - 1) / 2) * (UH + 14);
         const ux = Math.cos(a) * R3 + tx * off, uy = Math.sin(a) * R3 + ty * off;
         nodes.push({ id: u.id, type: 'sub', cx: ux, cy: uy, w: UW, h: UH, u, s });
-        edges.push({ id: `s:${s.id}>${u.id}`, x1: cx, y1: cy, x2: ux, y2: uy, kind: nodeState({ kind: 'subagent', status: u.status }, s) });
+        edges.push({ id: `s:${s.id}>${u.id}`, x1: cx, y1: cy, x2: ux, y2: uy, kind: subState(u, s) });
       });
       if (s.subagentTotal > subs.length) {
         const off = ((subs.length) - (subs.length - 1) / 2) * (UH + 14);
@@ -145,7 +145,7 @@ function updateNode(el, n) {
   if (n.type === 'more') { setText(el, n.label); return; }
   if (n.type === 'fold') { el.dataset.project = n.project; setText(el, n.label + ' — click to show'); return; }
   if (n.type === 'sub') {
-    const st = nodeState({ kind: 'subagent', status: n.u.status }, n.s);
+    const st = subState(n.u, n.s);
     el.dataset.sid = n.s.id;
     setClass(el, `map-node sub st-${st}${isSel(n) ? ' sel' : ''}`);
     el.querySelector('.dot').setAttribute('class', `dot ${st}`);

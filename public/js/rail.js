@@ -1,6 +1,6 @@
 // Left rail: agent overview grid (sessions grouped by what they are doing right now) + configured agent types.
 import { h, reconcile, setText, setClass, ago, fmtNum } from './util.js';
-import { S, effectiveSessionState, STATE_LABEL, inWindow, select, nodeState, attentionItems, unseen, notify } from './store.js';
+import { S, effectiveSessionState, STATE_LABEL, inWindow, select, nodeState, subState, attentionItems, unseen, notify } from './store.js';
 
 let root, list;
 
@@ -44,9 +44,9 @@ function updateCard(el, s) {
   setText(el.querySelector('.r-age'), eff === 'working' ? STATE_LABEL.working : ago(s.lastTs, S.now));
   setText(el.querySelector('.r-proj'), s.project);
   setText(el.querySelector('.r-act'), activity(s, eff));
-  const subs = s.subagents.filter((u) => u.status === 'pending' || u.status === 'async').concat(s.subagents.filter((u) => u.status !== 'pending' && u.status !== 'async')).slice(0, eff === 'historical' ? 2 : 4);
+  const subs = s.subagents.filter((u) => subState(u, s) === 'running').concat(s.subagents.filter((u) => subState(u, s) !== 'running')).slice(0, eff === 'historical' ? 2 : 4);
   reconcile(el.querySelector('.r-subs'), subs, (u) => u.id, (u) => h('div', { class: 'r-sub', onclick: (e) => { e.stopPropagation(); select({ type: 'node', sessionId: s.id, id: e.currentTarget.dataset.key }, 'flow'); } }, h('span', { class: 'dot' }), h('span', { class: 'rs-type' }), h('span', { class: 'rs-desc' })), (row, u) => {
-    const st = nodeState({ kind: 'subagent', status: u.status }, s);
+    const st = subState(u, s);
     row.querySelector('.dot').setAttribute('class', `dot ${st}`);
     setText(row.querySelector('.rs-type'), u.agentType || 'agent');
     setText(row.querySelector('.rs-desc'), u.description || STATE_LABEL[st]);

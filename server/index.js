@@ -69,7 +69,7 @@ function summarize(s) {
   const openTools = [];
   let awaitingUser = null;
   for (const n of s.nodes.values()) {
-    if (n.kind === 'subagent') subs.push({ id: n.id, agentId: n.agentId, agentType: n.agentType, description: n.description, status: n.status, ts: n.ts, endTs: n.endTs || null, scope: n.scope });
+    if (n.kind === 'subagent') subs.push({ id: n.id, agentId: n.agentId, agentType: n.agentType, description: n.description, status: n.status, ts: n.ts, endTs: n.endTs || null, lastActivityTs: n.lastActivityTs || null, scope: n.scope });
   }
   for (const id of s.open) {
     const n = s.nodes.get(id);

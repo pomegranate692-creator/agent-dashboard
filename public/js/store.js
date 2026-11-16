@@ -59,8 +59,10 @@ export function effectiveSessionState(s) {
 export const STATE_LABEL = {
   working: 'Working', idle: 'Idle', historical: 'Not running', unknown: 'Unknown',
   running: 'Running', unresolved: 'No result recorded', ok: 'Done', error: 'Failed', denied: 'Blocked by permission',
-  rejected: 'Declined', completed: 'Completed', failed: 'Failed', async: 'Background · not reported done', pending: 'Pending',
+  rejected: 'Declined', completed: 'Completed', failed: 'Failed', async: 'Background · no recent activity, not reported done', pending: 'Pending',
 };
+
+const ACTIVE_SUB_MS = 45000;
 
 // Status of a tool/subagent node as of "now" (or as of the replay cursor).
 export function nodeState(n, sess, atTs = null) {
@@ -76,8 +78,17 @@ export function nodeState(n, sess, atTs = null) {
   if (st !== 'pending' && st !== 'async') return st;
   const eff = effectiveSessionState(sess);
   if (eff === 'unknown') return 'unknown';
-  if (st === 'async') return eff === 'historical' ? 'unresolved' : 'async';
+  if (st === 'async') {
+    if (eff === 'historical') return 'unresolved';
+    // A background agent counts as running only while its own transcript is still being written.
+    return n.lastActivityTs && S.now - n.lastActivityTs <= ACTIVE_SUB_MS ? 'running' : 'async';
+  }
   return eff === 'working' ? 'running' : 'unresolved';
+}
+
+// State of a subagent summary row (as sent in the session list).
+export function subState(u, sess) {
+  return nodeState({ kind: 'subagent', status: u.status, endTs: u.endTs, lastActivityTs: u.lastActivityTs }, sess);
 }
 
 export function sessionNodes(sessionId) {

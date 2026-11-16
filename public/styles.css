@@ -503,3 +503,22 @@ h2, h3 { font-family: var(--hud); text-transform: uppercase; letter-spacing: .16
 @media (max-width: 1300px) { .feed-note { display: none; } .flow-bar .btn:not(.on):not(.primary) { font-size: 11px; padding: 4px 7px; } }
 .flow-bar .crumb.cur { min-width: 96px; }
 .flow-bar { overflow: hidden; }
+
+/* Semantic zoom for the overview map: when zoomed out, keep names and states readable (about 9px or more on screen)
+   and hide secondary detail until the user zooms in. --k is the current map scale, set by canvas.js. */
+#map.lowzoom .map-node.session { justify-content: center; padding: 6px 10px; gap: 2px; }
+#map.lowzoom .map-node.session .mn-proj,
+#map.lowzoom .map-node.session .mn-act,
+#map.lowzoom .map-node.session .mn-foot,
+#map.lowzoom .map-node.sub .u-desc,
+#map.lowzoom .map-node.hub .hub-c { display: none; }
+#map.lowzoom .mn-head { flex-wrap: wrap; row-gap: 2px; }
+#map.lowzoom .mn-title { flex: 1 1 calc(100% - 40px); min-width: 0; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: min(calc(11px / var(--k, 1)), 26px); line-height: 1.15; }
+#map.lowzoom .mn-state { flex: 1 1 100%; font-size: min(calc(10px / var(--k, 1)), 25px); line-height: 1.15; }
+#map.lowzoom .map-node.sub .u-type { font-size: min(calc(10.5px / var(--k, 1)), 26px); line-height: 1.1; }
+#map.lowzoom .map-node.project .p-name { font-size: min(calc(10.5px / var(--k, 1)), 26px); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#map.lowzoom .map-node.project .p-n, #map.lowzoom .map-node.project .p-ico { font-size: min(calc(10px / var(--k, 1)), 26px); line-height: 1; }
+#map.lowzoom .map-node.hub .hub-t { font-size: min(calc(11px / var(--k, 1)), 28px); line-height: 1.1; white-space: normal; }
+#map.lowzoom .map-node.hub .hub-s { font-size: min(calc(9.5px / var(--k, 1)), 26px); line-height: 1.15; white-space: normal; }
+#map.lowzoom .map-node.more, #map.lowzoom .map-node.fold { font-size: min(calc(10px / var(--k, 1)), 22px); }
+#map.lowzoom::before { content: 'Zoomed out: names and states only. Scroll to zoom in for details.'; position: absolute; right: 12px; bottom: 64px; z-index: 4; padding: 3px 8px; font-size: 12px; color: var(--muted); background: rgba(4,12,19,.85); border: 1px solid rgba(79,216,255,.2); pointer-events: none; }

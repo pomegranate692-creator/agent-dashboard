@@ -1,6 +1,6 @@
 // Header: connection status, live counters, attention list, and the "how this is observed" panel.
 import { h, setText, setClass, ago, fmtTime, fmtDateTime, fmtNum, reconcile } from './util.js';
-import { S, effectiveSessionState, attentionItems, unseen, markSeen, select, notify } from './store.js';
+import { S, effectiveSessionState, subState, attentionItems, unseen, markSeen, select, notify } from './store.js';
 
 let root, pop = null, popEl = null;
 
@@ -30,7 +30,7 @@ export function updateChrome() {
   const sess = [...S.sessions.values()];
   const w = sess.filter((s) => effectiveSessionState(s) === 'working').length;
   const i = sess.filter((s) => effectiveSessionState(s) === 'idle').length;
-  const subRun = sess.filter((s) => effectiveSessionState(s) === 'working').reduce((a, s) => a + s.subagents.filter((u) => u.status === 'pending' || u.status === 'async').length, 0);
+  const subRun = sess.filter((s) => effectiveSessionState(s) === 'working').reduce((a, s) => a + s.subagents.filter((u) => subState(u, s) === 'running').length, 0);
   const att = unseen(attentionItems());
   const conn = document.getElementById('conn');
   const idx = S.health && S.health.indexing;

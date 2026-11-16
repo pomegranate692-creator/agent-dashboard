@@ -35,6 +35,8 @@ never written.
 
 - **Rail (left)**: sessions grouped Working now / Open, idle / Recent history, then configured agent types.
 - **Map**: hub → project folders → sessions → subagents. Double-click a session to open its **Flow**.
+  When zoomed out it shows only names and states at a readable size; zoom in (or select a node) for detail, and
+  **Fit** returns to the whole picture.
 - **Flow**: prompt → Claude reply → tool calls, with subagents branching off to their own tool calls.
   Replay scrubs through a session's history (amber banner = not live).
 - **Inspector (right)**: full prompt/output/error text, fetched on demand from the transcript.
@@ -42,7 +44,9 @@ never written.
 - Header: connection state, live counts, *Needs attention*, and *How this is observed*.
 
 States are never guessed: a tool call without a result is **Running** only while its session is registered as
-working, otherwise **No result recorded**. If the browser loses the server, everything is marked
+working, otherwise **No result recorded**. A background subagent is **Running** only while its own transcript was
+written to in the last 45 seconds; otherwise it reads "Background · no recent activity, not reported done" until the
+parent session records its completion. Its end time is the completion report, never the launch. If the browser loses the server, everything is marked
 **Unknown / Visibility lost** instead of being assumed finished.
 
 ## Limitations

@@ -1,6 +1,8 @@
 // Pan/zoom canvas. Viewport state persists per canvas key so reloads and re-renders don't lose your place.
 import { h, clamp, lsGet, lsSet } from './util.js';
 
+const LOW_ZOOM = 0.65;
+
 export class Canvas {
   constructor(root, { key, minZoom = 0.12, maxZoom = 1.8, onChange } = {}) {
     this.root = root;
@@ -21,7 +23,12 @@ export class Canvas {
     this.bind();
   }
 
-  apply() { this.viewport.style.transform = `translate(${this.v.x}px, ${this.v.y}px) scale(${this.v.k})`; }
+  apply() {
+    this.viewport.style.transform = `translate(${this.v.x}px, ${this.v.y}px) scale(${this.v.k})`;
+    // Semantic zoom: below this scale the map shows names and states at a readable size instead of shrunken detail.
+    this.viewport.style.setProperty('--k', String(+this.v.k.toFixed(3)));
+    this.root.classList.toggle('lowzoom', this.v.k < LOW_ZOOM);
+  }
   save() { lsSet(this.key, this.v); }
   moved() { this.userMoved = true; this.apply(); this.save(); if (this.onChange) this.onChange(this.v); }
 

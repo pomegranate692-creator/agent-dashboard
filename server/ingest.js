@@ -252,6 +252,11 @@ class Ingest {
       if (scope === 'main' || !sess.firstTs) { if (!sess.firstTs || ts < sess.firstTs) sess.firstTs = ts; }
       if (!sess.lastTs || ts > sess.lastTs) sess.lastTs = ts;
     }
+    if (ts && fsx.kind === 'sub' && fsx.meta) {
+      // Most recent record in the subagent's own transcript: the only direct evidence a background agent is still working.
+      const owner = sess.nodes.get('sub:' + fsx.meta.toolUseId);
+      if (owner && (!owner.lastActivityTs || ts > owner.lastActivityTs)) { owner.lastActivityTs = ts; this.touchNode(sess, owner, fsx.caught, dirty); }
+    }
     if (rec.cwd && scope === 'main' && !sess.cwd) sess.cwd = rec.cwd; // first cwd = where the session started (tools may `cd` later)
     if (rec.version) sess.version = rec.version;
     if (rec.entrypoint) sess.entrypoint = rec.entrypoint;
@@ -421,10 +426,12 @@ class Ingest {
           sub.result = clip(redact(content || text), PREVIEW);
         } else sub.result = tool.result;
         sub.resultRef = ref;
-        sub.endTs = ts;
         if (tool.status !== 'ok') sub.status = 'failed';
         else if (sub.rawStatus && /async|launch|background|running/i.test(sub.rawStatus)) { sub.status = 'async'; }
         else sub.status = 'completed';
+        // For a background agent this result only acknowledges the launch; it is not an end time.
+        sub.endTs = sub.status === 'async' ? null : ts;
+        sub.launchAckTs = sub.status === 'async' ? ts : null;
         if (sub.status !== 'async') sess.open.delete(sub.id); else sess.open.add(sub.id);
         this.setLast(sess, ts, `${sub.agentType || 'agent'} ${sub.status}: ${sub.description}`, 'subagent', sub.id);
         this.touchNode(sess, sub, fsx.caught, dirty);
